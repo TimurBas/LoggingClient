@@ -1,38 +1,58 @@
-import * as React from "react"
 import {
   ChakraProvider,
-  Box,
-  Text,
-  Link,
   VStack,
-  Code,
-  Grid,
   theme,
 } from "@chakra-ui/react"
-import { ColorModeSwitcher } from "./ColorModeSwitcher"
-import { Logo } from "./Logo"
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Heading,
+  TableContainer,
+} from '@chakra-ui/react'
+import { useEffect, useState } from "react"
+import { LogModel } from "./LogModel"
 
-export const App = () => (
-  <ChakraProvider theme={theme}>
-    <Box textAlign="center" fontSize="xl">
-      <Grid minH="100vh" p={3}>
-        <ColorModeSwitcher justifySelf="flex-end" />
-        <VStack spacing={8}>
-          <Logo h="40vmin" pointerEvents="none" />
-          <Text>
-            Edit <Code fontSize="xl">src/App.tsx</Code> and save to reload.
-          </Text>
-          <Link
-            color="teal.500"
-            href="https://chakra-ui.com"
-            fontSize="2xl"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn Chakra
-          </Link>
-        </VStack>
-      </Grid>
-    </Box>
-  </ChakraProvider>
-)
+const App = () => {
+  const [logs, setLogs] = useState<LogModel[]>([])
+
+  useEffect(() => {
+    fetch("https://localhost:44371/Log", { method: "GET", }).then((response) => response.json()).then((json) => setLogs(json))
+  }, [])
+
+  return (
+    <ChakraProvider theme={theme}>
+      <VStack>
+        <Heading >Technical Interview Assignment</Heading>
+        <Heading size="md">Logging Library</Heading>
+        <TableContainer mt={500}>
+          <Table variant='simple'>
+            <Thead>
+              <Tr>
+                <Th>Level</Th>
+                <Th>(Message)</Th>
+                <Th>(Exception)</Th>
+                <Th>Date</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {logs.map(log => (
+                <Tr>
+                  <Td>{log.level}</Td>
+                  <Td>{log.message}</Td>
+                  <Td>{log.exception.message + " " + log.exception.stacktrace}</Td>
+                  <Td>{new Date(log.createdOn).toDateString()}</Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </TableContainer>
+      </VStack>
+    </ChakraProvider>
+  )
+}
+
+export default App
